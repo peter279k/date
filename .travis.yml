@@ -24,7 +24,7 @@ before_install:
   - travis_retry composer self-update
 
 install:
-  - if [[ $CARBON_PRE_RELEASE == "yes" ]]; then travis_retry composer require nesbot/carbon=dev-master; fi;
+  - if [[ $CARBON_PRE_RELEASE == "yes" ]]; then travis_retry composer require nesbot/carbon; fi;
   - travis_retry composer update --dev --no-interaction --prefer-source
 
 script:
