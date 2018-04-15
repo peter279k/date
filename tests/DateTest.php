@@ -15,36 +15,49 @@ class DateTest extends TestCase
     public function testConstructs()
     {
         $date = new Date;
-        $this->assertInstanceOf('Jenssegers\Date\Date', $date);
+        $this->assertInstanceOf(Date::class, $date);
     }
 
     public function testStaticNow()
     {
         $date = Date::now();
-        $this->assertInstanceOf('Jenssegers\Date\Date', $date);
+        $this->assertInstanceOf(Date::class, $date);
         $this->assertEquals(time(), $date->getTimestamp());
     }
 
-    public function testConstructFromString()
+    public function constructFromStringPovider()
     {
-        $date = new Date('2013-01-31');
-        $this->assertSame(1359590400, $date->getTimestamp());
-
-        $date = new Date('1 day ago');
-        $this->assertSame(time() - 86400, $date->getTimestamp());
+        return [
+            ['2013-01-31', 1359590400],
+            ['1 day ago', time() - 86400],
+        ];
     }
 
-    public function testConstructWithTimezone()
+    /**
+     * @dataProvider constructFromStringPovider
+     */
+    public function testConstructFromString($dateString, $expected)
     {
-        $date = new Date('now', 'Europe/Paris');
-        date_default_timezone_set('Europe/Paris');
-        $this->assertSame(time(), $date->getTimestamp());
+        $date = new Date($dateString);
+        $this->assertSame($expected, $date->getTimestamp());
+    }
 
-        date_default_timezone_set('Europe/Brussels');
+    public function constructWithTimezoneProvider()
+    {
+        return [
+            ['now', 'Europe/Paris', time()],
+            [null, 'Europe/Paris', time()],
+        ];
+    }
 
-        $date = new Date(null, 'Europe/Paris');
+    /**
+     * @dataProvider constructWithTimezoneProvider
+     */
+    public function testConstructWithTimezone($timeDescription, $timeZone, $expected)
+    {
         date_default_timezone_set('Europe/Paris');
-        $this->assertSame(time(), $date->getTimestamp());
+        $date = new Date($timeDescription, $timeZone);
+        $this->assertSame($expected, $date->getTimestamp());
     }
 
     public function testConstructTimestamp()
@@ -63,14 +76,14 @@ class DateTest extends TestCase
     public function testCreateFromCarbon()
     {
         $date = Date::make(Carbon::createFromFormat('U', 1367186296));
-        $this->assertInstanceOf('Jenssegers\Date\Date', $date);
+        $this->assertInstanceOf(Date::class, $date);
         $this->assertEquals(1367186296, $date->getTimestamp());
     }
 
     public function testManipulation()
     {
-        $this->assertInstanceOf('Jenssegers\Date\Date', Date::now()->add('1 day'));
-        $this->assertInstanceOf('Jenssegers\Date\Date', Date::now()->sub('1 day'));
+        $this->assertInstanceOf(Date::class, Date::now()->add('1 day'));
+        $this->assertInstanceOf(Date::class, Date::now()->sub('1 day'));
 
         $this->assertSame(86400, Date::now()->add('1 day')->getTimestamp() - Date::now()->getTimestamp());
         $this->assertSame(4 * 86400, Date::now()->add('4 day')->getTimestamp() - Date::now()->getTimestamp());
@@ -94,77 +107,99 @@ class DateTest extends TestCase
         $this->assertSame(5, $date->age);
     }
 
-    public function testAgo()
+    public function agoProvider()
     {
-        $date = Date::parse('-5 years');
-        $this->assertSame('5 years ago', $date->ago());
-
-        $date = Date::parse('-5 months');
-        $this->assertSame('5 months ago', $date->ago());
-
-        $date = Date::parse('-32 days');
-        $this->assertSame('1 month ago', $date->ago());
-
-        $date = Date::parse('-4 days');
-        $this->assertSame('4 days ago', $date->ago());
-
-        $date = Date::parse('-1 day');
-        $this->assertSame('1 day ago', $date->ago());
-
-        $date = Date::parse('-3 hours');
-        $this->assertSame('3 hours ago', $date->ago());
-
-        $date = Date::parse('-1 hour');
-        $this->assertSame('1 hour ago', $date->ago());
-
-        $date = Date::parse('-2 minutes');
-        $this->assertSame('2 minutes ago', $date->ago());
-
-        $date = Date::parse('-1 minute');
-        $this->assertSame('1 minute ago', $date->ago());
-
-        $date = Date::parse('-50 second');
-        $this->assertSame('50 seconds ago', $date->ago());
-
-        $date = Date::parse('-1 second');
-        $this->assertSame('1 second ago', $date->ago());
-
-        $date = Date::parse('+5 days');
-        $this->assertSame('5 days from now', $date->ago());
-
-        $date = Date::parse('+5 days');
-        $this->assertSame('5 days after', $date->ago(Date::now()));
-
-        $date = Date::parse('-5 days');
-        $this->assertSame('5 days before', $date->ago(Date::now()));
+        return [
+            ['-5 years', '5 years ago'],
+            ['-5 months', '5 months ago'],
+            ['-32 days', '1 month ago'],
+            ['-4 days', '4 days ago'],
+            ['-1 day', '1 day ago'],
+            ['-3 hours', '3 hours ago'],
+            ['-1 hour', '1 hour ago'],
+            ['-2 minutes', '2 minutes ago'],
+            ['-1 minute', '1 minute ago'],
+            ['-50 seconds', '50 seconds ago'],
+            ['-1 second', '1 second ago'],
+            ['+5 days', '5 days from now'],
+        ];
     }
 
-    public function testAbsoluteAgo()
+    /**
+     * @dataProvider agoProvider
+     */
+    public function testAgo($dateDescription, $expected)
     {
-        $date = Date::parse('-5 days');
-        $this->assertSame('5 days', $date->ago(Date::now(), true));
-
-        $date = Date::parse('+5 days');
-        $this->assertSame('5 days', $date->ago(Date::now(), true));
+        $date = Date::parse($dateDescription);
+        $this->assertSame($expected, $date->ago());
     }
 
-    public function testDiffForHumans()
+    public function ageNowDateProvider()
     {
-        $date = Date::parse('-5 years');
-        $this->assertSame('5 years ago', $date->diffForHumans());
+        return [
+            ['+5 days', '5 days after'],
+            ['-5 days', '5 days before'],
+        ];
+    }
 
-        $date = Date::parse('-15 days');
-        $this->assertSame('2 weeks ago', $date->diffForHumans());
+    /**
+     * @dataProvider ageNowDateProvider
+     */
+    public function testAgeOnNowDate($dateDescription, $expected)
+    {
+        $date = Date::parse($dateDescription);
+        $this->assertSame($expected, $date->ago(Date::now()));
+    }
 
-        $date = Date::parse('-13 days');
-        $this->assertSame('1 week ago', $date->diffForHumans());
+    public function absoluteAgoProvider()
+    {
+        return [
+            ['-5 days', '5 days'],
+            ['+5 days', '5 days']
+        ];
+    }
 
+    /**
+     * @dataProvider absoluteAgoProvider
+     */
+    public function testAbsoluteAgo($dateDescription, $expected)
+    {
+        $date = Date::parse($dateDescription);
+        $this->assertSame($expected, $date->ago(Date::now(), true));
+    }
+
+    public function diffForHumansProvider()
+    {
+        return [
+            ['-5 years', '5 years ago'],
+            ['-15 days', '2 weeks ago'],
+            ['-13 days', '1 week ago'],
+        ];
+    }
+
+    /**
+     * @dataProvider diffForHumansProvider
+     */
+    public function testDiffForHumans($dateDescription, $expected)
+    {
+        $date = Date::parse($dateDescription);
+        $this->assertSame($expected, $date->diffForHumans());
+    }
+
+    public function testDiffForHumapnsOnDays()
+    {
         $date = Date::parse('-13 days');
         $this->assertSame('1 week', $date->diffForHumans(null, true));
+    }
 
+    public function testDiffForHumapnsOnMonths()
+    {
         $date = Date::parse('-3 months');
         $this->assertSame('3 months', $date->diffForHumans(null, true));
+    }
 
+    public function testDiffForHumansOnWeeks()
+    {
         $date = Date::parse('-1 week');
         $future = Date::parse('+1 week');
         $this->assertSame('2 weeks after', $future->diffForHumans($date));
@@ -179,14 +214,21 @@ class DateTest extends TestCase
         $this->assertSame('3 months, 1 week, 1 day, 3 hours, 20 minutes', $date->timespan(1403619368));
     }
 
-    public function testTranslateTimeString()
+    public function translateTimeStringProvider()
     {
-        Date::setLocale('ru');
-        $date = Date::translateTimeString('понедельник 21 март 2015');
-        $this->assertSame('monday 21 march 2015', $date);
+        return [
+            ['ru', 'понедельник 21 март 2015', 'monday 21 march 2015'],
+            ['de', 'Montag 21 März 2015', 'monday 21 march 2015'],
+        ];
+    }
 
-        Date::setLocale('de');
-        $date = Date::translateTimeString('Montag 21 März 2015');
-        $this->assertSame('monday 21 march 2015', $date);
+    /**
+     * @dataProvider translateTimeStringProvider
+     */
+    public function testTranslateTimeString($locale, $localeString, $expected)
+    {
+        Date::setLocale($locale);
+        $date = Date::translateTimeString($localeString);
+        $this->assertSame($expected, $date);
     }
 }

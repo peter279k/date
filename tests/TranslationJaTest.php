@@ -14,247 +14,329 @@ class TranslationJaTest extends TestCase
         Date::setLocale('ja');
     }
 
-    /**
-     * @test
-     */
-    public function it_can_translate_month()
+    public function translateMonthProvider()
     {
-        $jan = Date::createFromFormat('m-d', '01-01');
-        $feb = Date::createFromFormat('m-d', '02-01');
-        $mar = Date::createFromFormat('m-d', '03-01');
-        $apr = Date::createFromFormat('m-d', '04-01');
-        $may = Date::createFromFormat('m-d', '05-01');
-        $jun = Date::createFromFormat('m-d', '06-01');
-        $jul = Date::createFromFormat('m-d', '07-01');
-        $aug = Date::createFromFormat('m-d', '08-01');
-        $sep = Date::createFromFormat('m-d', '09-01');
-        $oct = Date::createFromFormat('m-d', '10-01');
-        $nov = Date::createFromFormat('m-d', '11-01');
-        $dec = Date::createFromFormat('m-d', '12-01');
-
-        $this->assertEquals('1月', $jan->format('F'));
-        $this->assertEquals('2月', $feb->format('F'));
-        $this->assertEquals('3月', $mar->format('F'));
-        $this->assertEquals('4月', $apr->format('F'));
-        $this->assertEquals('5月', $may->format('F'));
-        $this->assertEquals('6月', $jun->format('F'));
-        $this->assertEquals('7月', $jul->format('F'));
-        $this->assertEquals('8月', $aug->format('F'));
-        $this->assertEquals('9月', $sep->format('F'));
-        $this->assertEquals('10月', $oct->format('F'));
-        $this->assertEquals('11月', $nov->format('F'));
-        $this->assertEquals('12月', $dec->format('F'));
+        return [
+            ['m-d', '01-01', '1月'],
+            ['m-d', '02-01', '2月'],
+            ['m-d', '03-01', '3月'],
+            ['m-d', '04-01', '4月'],
+            ['m-d', '05-01', '5月'],
+            ['m-d', '06-01', '6月'],
+            ['m-d', '07-01', '7月'],
+            ['m-d', '08-01', '8月'],
+            ['m-d', '09-01', '9月'],
+            ['m-d', '10-01', '10月'],
+            ['m-d', '11-01', '11月'],
+            ['m-d', '12-01', '12月'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateMonthProvider
      */
-    public function it_can_translate_weekdays()
+    public function testTranslateMonth($dateFormat, $dateString, $expected)
     {
-        $mon = Date::parse('next monday');
-        $tue = Date::parse('next tuesday');
-        $wed = Date::parse('next wednesday');
-        $thu = Date::parse('next thursday');
-        $fri = Date::parse('next friday');
-        $sat = Date::parse('next saturday');
-        $sun = Date::parse('next sunday');
+        $date = Date::createFromFormat($dateFormat, $dateString);
 
-        $this->assertEquals('月曜日', $mon->format('l'));
-        $this->assertEquals('火曜日', $tue->format('l'));
-        $this->assertEquals('水曜日', $wed->format('l'));
-        $this->assertEquals('木曜日', $thu->format('l'));
-        $this->assertEquals('金曜日', $fri->format('l'));
-        $this->assertEquals('土曜日', $sat->format('l'));
-        $this->assertEquals('日曜日', $sun->format('l'));
+        $this->assertEquals($expected, $date->format('F'));
+    }
+
+    public function translateWeekdaysProvider()
+    {
+        return [
+            ['next monday', '月曜日'],
+            ['next tuesday', '火曜日'],
+            ['next wednesday', '水曜日'],
+            ['next thursday', '木曜日'],
+            ['next friday', '金曜日'],
+            ['next saturday', '土曜日'],
+            ['next sunday', '日曜日'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateWeekdaysProvider
      */
-    public function it_can_translate_weekdays_short_form()
+    public function testTranslateWeekdays($dayString, $expected)
     {
-        $mon = Date::parse('next monday');
-        $tue = Date::parse('next tuesday');
-        $wed = Date::parse('next wednesday');
-        $thu = Date::parse('next thursday');
-        $fri = Date::parse('next friday');
-        $sat = Date::parse('next saturday');
-        $sun = Date::parse('next sunday');
+        $day = Date::parse($dayString);
 
-        $this->assertEquals('月', $mon->format('D'));
-        $this->assertEquals('火', $tue->format('D'));
-        $this->assertEquals('水', $wed->format('D'));
-        $this->assertEquals('木', $thu->format('D'));
-        $this->assertEquals('金', $fri->format('D'));
-        $this->assertEquals('土', $sat->format('D'));
-        $this->assertEquals('日', $sun->format('D'));
+        $this->assertEquals($expected, $day->format('l'));
+    }
+
+    public function translateWeekdaysShortFormProvider()
+    {
+        return [
+            ['next monday', '月'],
+            ['next tuesday', '火'],
+            ['next wednesday', '水'],
+            ['next thursday', '木'],
+            ['next friday', '金'],
+            ['next saturday', '土'],
+            ['next sunday', '日'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateWeekdaysShortFormProvider
      */
-    public function it_can_translate_seconds_ago()
+    public function testTranslateWeekdaysShortForm($dayString, $expected)
     {
-        $oneSecondAgo = Date::parse('-1 second');
-        $fiveSecondsAgo = Date::parse('-5 seconds');
+        $day = Date::parse($dayString);
 
-        $this->assertEquals('1 秒 前', $oneSecondAgo->ago());
-        $this->assertEquals('5 秒 前', $fiveSecondsAgo->ago());
+        $this->assertEquals($expected, $day->format('D'));
+    }
+
+    public function translateSecondsAgoProvider()
+    {
+        return [
+            ['-1 second', '1 秒 前'],
+            ['-5 second', '5 秒 前'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateSecondsAgoProvider
      */
-    public function it_can_translate_minutes_ago()
+    public function testTranslateSecondsAgo($timeDescription, $expected)
     {
-        $oneMinuteAgo = Date::parse('-1 minute');
-        $fiveMinutesAgo = Date::parse('-5 minutes');
+        $secondAgo = Date::parse($timeDescription);
 
-        $this->assertEquals('1 分 前', $oneMinuteAgo->ago());
-        $this->assertEquals('5 分 前', $fiveMinutesAgo->ago());
+        $this->assertEquals($expected, $secondAgo->ago());
+    }
+
+    public function translateMinutesAgoProvider()
+    {
+        return [
+            ['-1 minute', '1 分 前'],
+            ['-5 minute', '5 分 前'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateMinutesAgoProvider
      */
-    public function it_can_translate_hours_ago()
+    public function testTranslateMinutesAgo($timeDescription, $expected)
     {
-        $oneHourAgo = Date::parse('-1 hour');
-        $fiveHoursAgo = Date::parse('-5 hours');
+        $minuteAgo = Date::parse($timeDescription);
 
-        $this->assertEquals('1 時間 前', $oneHourAgo->ago());
-        $this->assertEquals('5 時間 前', $fiveHoursAgo->ago());
+        $this->assertEquals($expected, $minuteAgo->ago());
+    }
+
+    public function translateHoursAgoProvider()
+    {
+        return [
+            ['-1 hour', '1 時間前'],
+            ['-5 hours', '5 時間前'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateHoursAgoProvider
      */
-    public function it_can_translate_days_ago()
+    public function testTranslateHoursAgo($timeDescription, $expected)
     {
-        $oneDayAgo = Date::parse('-1 day');
-        $threeDaysAgo = Date::parse('-3 days');
+        $hourAgo = Date::parse($timeDescription);
 
-        $this->assertEquals('1 日 前', $oneDayAgo->ago());
-        $this->assertEquals('3 日 前', $threeDaysAgo->ago());
+        $this->assertEquals($expected, $hourAgo->ago());
+    }
+
+    public function translateDaysAgoProvider()
+    {
+        return [
+            ['-1 day', '1 日 前'],
+            ['-3 days', '3 日 前'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateDaysAgoProvider
      */
-    public function it_can_translate_weeks_ago()
+    public function testTranslateDaysAgo($dayDescription, $expected)
     {
-        $oneWeekAgo = Date::parse('-1 week');
-        $threeWeeksAgo = Date::parse('-3 weeks');
+        $dayAgo = Date::parse($dayDescription);
 
-        $this->assertEquals('1 週間 前', $oneWeekAgo->ago());
-        $this->assertEquals('3 週間 前', $threeWeeksAgo->ago());
+        $this->assertEquals($expected, $dayAgo->ago());
+    }
+
+    public function translateWeeksAgoProvider()
+    {
+        return [
+            ['-1 week', '1 週間 前'],
+            ['-3 weeks', '3 週間 前'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateWeeksAgoProvider
      */
-    public function it_can_translate_months_ago()
+    public function testTranslateWeeksAgo($weekDescription, $expected)
     {
-        $oneMonthAgo = Date::parse('-1 month');
-        $twoMonthsAgo = Date::parse('-2 months');
+        $weekAgo = Date::parse($weekDescription);
 
-        $this->assertEquals('1 ヶ月 前', $oneMonthAgo->ago());
-        $this->assertEquals('2 ヶ月 前', $twoMonthsAgo->ago());
+        $this->assertEquals($expected, $weekAgo->ago());
+    }
+
+    public function translateMonthsAgoProvider()
+    {
+        return [
+            ['-1 month', '1 ヶ月 前'],
+            ['-2 months', '2 ヶ月 前'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateMonthsAgoProvider
      */
-    public function it_can_translate_years_ago()
+    public function testTranslateMonthsAgo($monthDescription, $expected)
     {
-        $oneYearAgo = Date::parse('-1 year');
-        $towYearsAgo = Date::parse('-2 years');
+        $monthAgo = Date::parse($monthDescription);
 
-        $this->assertEquals('1 年 前', $oneYearAgo->ago());
-        $this->assertEquals('2 年 前', $towYearsAgo->ago());
+        $this->assertEquals($expected, $monthAgo->ago());
+    }
+
+    public function translateYearsAgoProvider()
+    {
+        return [
+            ['-1 year', '1 年 前'],
+            ['-2 years', '2 年 前'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateYearsAgoProvider
      */
-    public function it_can_translate_seconds_from_now()
+    public function testTranslateYearsAgo($yearDescription, $expected)
     {
-        $oneSecondFromNow = Date::parse('1 second');
-        $fiveSecondsFromNow = Date::parse('5 seconds');
+        $yearAgo = Date::parse($yearDescription);
+ 
+        $this->assertEquals($expected, $yearAgo->ago());
+    }
 
-        $this->assertEquals('今から 1 秒', $oneSecondFromNow->diffForHumans());
-        $this->assertEquals('今から 5 秒', $fiveSecondsFromNow->diffForHumans());
+    public function translateSecondsFromNowProvider()
+    {
+        return [
+            ['1 second', '今から 1 秒'],
+            ['5 seconds', '今から 5 秒'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateSecondsFromNowProvider
      */
-    public function it_can_translate_minutes_from_now()
+    public function testTranslateSecondsFromNow($secondDescription, $expected)
     {
-        $oneMinuteFromNow = Date::parse('1 minute');
-        $fiveMinutesFromNow = Date::parse('5 minutes');
+        $secondFromNow = Date::parse($secondDescription);
 
-        $this->assertEquals('今から 1 分', $oneMinuteFromNow->diffForHumans());
-        $this->assertEquals('今から 5 分', $fiveMinutesFromNow->diffForHumans());
+        $this->assertEquals($expected, $secondFromNow->diffForHumans());
+    }
+
+    public function translateMinutesFromNowProvider()
+    {
+        return [
+            ['1 minute', '今から 1 分'],
+            ['5 minute', '今から 5 分'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateMinutesFromNowProvider
      */
-    public function it_can_translate_hours_from_now()
+    public function testTranslateMinutesFromNow($minuteDescription, $expected)
     {
-        $oneHourFromNow = Date::parse('1 hour');
-        $fiveHoursFromNow = Date::parse('5 hours');
+        $minuteFromNow = Date::parse($minuteDescription);
 
-        $this->assertEquals('今から 1 時間', $oneHourFromNow->diffForHumans());
-        $this->assertEquals('今から 5 時間', $fiveHoursFromNow->diffForHumans());
+        $this->assertEquals($expected, $minuteFromNow->diffForHumans());
+    }
+
+    public function translateHoursFromNowProvider()
+    {
+        return [
+            ['1 hour', '今から 1 時間'],
+            ['5 hours', '今から 5 時間'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateHoursFromNowProvider
      */
-    public function it_can_translate_days_from_now()
+    public function testTranslateHoursFromNow($hourDescription, $expected)
     {
-        $oneDayFromNow = Date::parse('1 day');
-        $threeDaysFromNow = Date::parse('3 days');
+        $hourFromNow = Date::parse($hourDescription);
 
-        $this->assertEquals('今から 1 日', $oneDayFromNow->diffForHumans());
-        $this->assertEquals('今から 3 日', $threeDaysFromNow->diffForHumans());
+        $this->assertEquals($expected, $hourFromNow->diffForHumans());
+    }
+
+    public function translateDaysFromNowProvider()
+    {
+        return [
+            ['1 day', '今から 1 日'],
+            ['3 days', '今から 3 日'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateDaysFromNowProvider
      */
-    public function it_can_translate_weeks_from_now()
+    public function testTranslateDaysFromNow($dayDescription, $expected)
     {
-        $oneWeekFromNow = Date::parse('1 week');
-        $threeWeeksFromNow = Date::parse('3 weeks');
+        $dayFromNow = Date::parse($dayDescription);
 
-        $this->assertEquals('今から 1 週間', $oneWeekFromNow->diffForHumans());
-        $this->assertEquals('今から 3 週間', $threeWeeksFromNow->diffForHumans());
+        $this->assertEquals($expected, $dayFromNow->diffForHumans());
+    }
+
+    public function translateWeeksFromNowProvider()
+    {
+        return [
+            ['1 week', '今から 1 週間'],
+            ['3 weeks', '今から 3 週間'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateWeeksFromNowProvider
      */
-    public function it_can_translate_months_from_now()
+    public function testTranslateWeeksFromNow($weekDescription, $expected)
     {
-        $oneMonthFromNow = Date::parse('1 month');
-        $twoMonthsFromNow = Date::parse('2 months');
+        $weekFromNow = Date::parse($weekDescription);
 
-        $this->assertEquals('今から 1 ヶ月', $oneMonthFromNow->diffForHumans());
-        $this->assertEquals('今から 2 ヶ月', $twoMonthsFromNow->diffForHumans());
+        $this->assertEquals($expected, $weekFromNow->diffForHumans());
+    }
+
+    public function translateMonthsFromNow()
+    {
+        return [
+            ['1 month', '今から 1 ヶ月'],
+            ['2 months', '今から 2 ヶ月'],
+        ];
     }
 
     /**
-     * @test
+     * @dataProvider translateMonthsFromNow
      */
-    public function it_can_translate_years_from_now()
+    public function testTranslateMonthsFromNow($monthDescription, $expected)
     {
-        $oneYearFromNow = Date::parse('1 year');
-        $towYearsFromNow = Date::parse('2 years');
+        $monthFromNow = Date::parse($monthDescription);
 
-        $this->assertEquals('今から 1 年', $oneYearFromNow->diffForHumans());
-        $this->assertEquals('今から 2 年', $towYearsFromNow->diffForHumans());
+        $this->assertEquals($expected, $monthFromNow->diffForHumans());
+    }
+
+    public function translateYearsFromNowProvider()
+    {
+        return [
+            ['1 year', '今から 1 年'],
+            ['2 years', '今から 2 年'],
+        ];
+    }
+
+    /**
+     * @dataProvider translateYearsFromNowProvider
+     */
+    public function testTranslateYearsFromNow($yearDescription, $expected)
+    {
+        $yearFromNow = Date::parse($yearDescription);
+
+        $this->assertEquals($expected, $yearFromNow->diffForHumans());
     }
 }
