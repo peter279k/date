@@ -127,8 +127,8 @@ class TranslationJaTest extends TestCase
     public function translateHoursAgoProvider()
     {
         return [
-            ['-1 hour', '1 時間前'],
-            ['-5 hours', '5 時間前'],
+            ['-1 hour', '1 時間 前'],
+            ['-5 hours', '5 時間 前'],
         ];
     }
 
