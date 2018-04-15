@@ -25,39 +25,26 @@ class DateTest extends TestCase
         $this->assertEquals(time(), $date->getTimestamp());
     }
 
-    public function constructFromStringPovider()
+    public function testConstructFromString()
     {
-        return [
-            ['2013-01-31', 1359590400],
-            ['1 day ago', time() - 86400],
-        ];
+        $date = new Date('2013-01-31');
+        $this->assertSame(1359590400, $date->getTimestamp());
+
+        $date = new Date('1 day ago');
+        $this->assertSame(time() - 86400, $date->getTimestamp());
     }
 
-    /**
-     * @dataProvider constructFromStringPovider
-     */
-    public function testConstructFromString($dateString, $expected)
+    public function testConstructWithTimezone()
     {
-        $date = new Date($dateString);
-        $this->assertSame($expected, $date->getTimestamp());
-    }
-
-    public function constructWithTimezoneProvider()
-    {
-        return [
-            ['now', 'Europe/Paris', time()],
-            [null, 'Europe/Paris', time()],
-        ];
-    }
-
-    /**
-     * @dataProvider constructWithTimezoneProvider
-     */
-    public function testConstructWithTimezone($timeDescription, $timeZone, $expected)
-    {
+        $date = new Date('now', 'Europe/Paris');
         date_default_timezone_set('Europe/Paris');
-        $date = new Date($timeDescription, $timeZone);
-        $this->assertSame($expected, $date->getTimestamp());
+        $this->assertSame(time(), $date->getTimestamp());
+
+        date_default_timezone_set('Europe/Brussels');
+
+        $date = new Date(null, 'Europe/Paris');
+        date_default_timezone_set('Europe/Paris');
+        $this->assertSame(time(), $date->getTimestamp());
     }
 
     public function testConstructTimestamp()
